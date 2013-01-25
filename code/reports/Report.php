@@ -128,6 +128,19 @@ class SS_Report extends ViewableData {
 		return $this->dataClass;
 	}
 
+	/**
+	 * counts the number of objects returned
+	 * @param Array $params - any parameters for the sourceRecords
+	 * @return Int
+	 */
+	public function getCount($params = array()){
+		$sourceRecords = $this->sourceRecords($params, null, null);
+		if(!$sourceRecords instanceOf SS_List){
+			user_error($this->class."::sourceRecords does not return an SS_List", E_USER_NOTICE);
+		}
+		return $sourceRecords->count();
+	}
+	
 	public function getLink($action = null) {
 		return Controller::join_links(
 			'admin/reports/',

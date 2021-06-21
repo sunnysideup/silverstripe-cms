@@ -66,7 +66,7 @@ abstract class SiteTreeExtension extends DataExtension
      * logged in user
      * @return boolean|null Return false to deny rights, or null to yield to default
      */
-    public function canPublish($member)
+    public function canPublish($member = null)
     {
     }
 

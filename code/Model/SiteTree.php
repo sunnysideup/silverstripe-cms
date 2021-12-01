@@ -641,10 +641,10 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      */
     public function RelativeLink($action = null)
     {
-        if ($this->ParentID && self::config()->get('nested_urls')) {
-            $parent = $this->getParent();
+        $parent = $this->getParent();
+        if ($parent && self::config()->get('nested_urls')) {
             // If page is removed select parent from version history (for archive page view)
-            if ((!$parent || !$parent->exists()) && !$this->isOnDraft()) {
+            if (! $this->isOnDraft()) {
                 $parent = Versioned::get_latest_version(self::class, $this->ParentID);
             }
             $base = $parent ? $parent->RelativeLink($this->URLSegment) : null;
@@ -760,14 +760,9 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      */
     public function isOrphaned()
     {
-        // Always false for root pages
-        if (empty($this->ParentID)) {
-            return false;
-        }
-
         // Parent must exist and not be an orphan itself
         $parent = $this->getParent();
-        return !$parent || !$parent->exists() || $parent->isOrphaned();
+        return !$parent || $parent->isOrphaned();
     }
 
     /**
@@ -816,7 +811,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
     public function InSection($sectionName)
     {
         $page = Director::get_current_page();
-        while ($page instanceof SiteTree && $page->exists()) {
+        while ($page) {
             if ($sectionName === $page->URLSegment) {
                 return true;
             }
@@ -914,8 +909,8 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
         $page = $this;
         $pages = [];
 
-        while ($page
-            && $page->exists()
+        while (
+            $page
             && (!$maxDepth || count($pages) < $maxDepth)
             && (!$stopAtPageType || $page->ClassName != $stopAtPageType)
         ) {
@@ -951,16 +946,26 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
 
     /**
      * Get the parent of this page.
+     * This is here to keep compatability with the has_one magic method
+     * that always returns an object, even if there is none for the specific relation.
      *
-     * @return SiteTree Parent of this page
+     * @return SiteTree Parent of this page or SiteTree singleton
+     */
+    public function Parent()
+    {
+        return $this->getParent() ?: Injector::inst()->get(self::class);
+    }
+
+    /**
+     * Get the parent of this page, if any
+     *
+     * @return SiteTree|null Parent of this page
      */
     public function getParent()
     {
-        $parentID = $this->getField("ParentID");
-        if ($parentID) {
+        if ($this->ParentID) {
             return SiteTree::get_by_id(self::class, $parentID);
         }
-        return null;
     }
 
     /**
@@ -1132,8 +1137,9 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
 
         // check for inherit
         if ($this->CanViewType === InheritedPermissions::INHERIT) {
-            if ($this->ParentID) {
-                return $this->getParent()->canView($member);
+            $parent = $this->getParent();
+            if ($parent) {
+                return $parent->canView($member);
             } else {
                 return $this->getSiteConfig()->canViewPages($member);
             }
@@ -1555,7 +1561,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
 
         // If Sort hasn't been set, make this page come after it's siblings
         if (!$this->Sort) {
-            $parentID = ($this->ParentID) ? $this->ParentID : 0;
+            $parentID = (int) ($this->ParentID ?: 0);
             $tablename = $this->baseTable();
             $this->Sort = DB::prepared_query(
                 "SELECT MAX(\"Sort\") + 1 FROM \"$tablename\" WHERE \"ParentID\" = ?",
@@ -1690,7 +1696,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
 
         // Allowed children validation
         $parent = $this->getParent();
-        if ($parent && $parent->exists()) {
+        if ($parent) {
             // No need to check for subclasses or instanceof, as allowedChildren() already
             // deconstructs any inheritance trees already.
             $allowed = $parent->allowedChildren();
@@ -1738,13 +1744,12 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
     public function validURLSegment()
     {
         // Check known urlsegment blacklists
-        if (self::config()->get('nested_urls') && $this->ParentID) {
+        $parent = $this->getParent();
+        if (self::config()->get('nested_urls') && $parent) {
             // Guard against url segments for sub-pages
-            $parent = $this->getParent();
-            if ($controller = ModelAsController::controller_for($parent)) {
-                if ($controller instanceof Controller && $controller->hasAction($this->URLSegment)) {
-                    return false;
-                }
+            $controller = ModelAsController::controller_for($parent);
+            if ($controller instanceof Controller && $controller->hasAction($this->URLSegment)) {
+                return false;
             }
         } elseif (in_array(strtolower($this->URLSegment), $this->getExcludedURLSegments())) {
             // Guard against url segments for the base page
@@ -1769,7 +1774,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
             $source = $source->exclude('ID', $this->ID);
         }
         if (self::config()->get('nested_urls')) {
-            $source = $source->filter('ParentID', $this->ParentID ? $this->ParentID : 0);
+            $source = $source->filter('ParentID', $this->ParentID ?: 0);
         }
         return !$source->exists();
     }
@@ -1999,9 +2004,17 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
             $dependentTable->getConfig()->addComponent(new GridFieldLazyLoader());
         }
 
+        $link = null;
+        if (self::config()->get('nested_urls')) {
+            $parent = $this->getParent();
+            if ($parent) {
+                $link = $parent->RelativeLink(true);
+            }
+        }
+
         $baseLink = Controller::join_links(
             Director::absoluteBaseURL(),
-            (self::config()->get('nested_urls') && $this->ParentID ? $this->getParent()->RelativeLink(true) : null)
+            $link
         );
 
         $urlsegment = SiteTreeURLSegmentField::create("URLSegment", $this->fieldLabel('URLSegment'))
@@ -2507,7 +2520,8 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      */
     protected function isParentArchived()
     {
-        if ($parentID = $this->ParentID) {
+        $parentID = $this->ParentID;
+        if ($parentID) {
             /** @var SiteTree $parentPage */
             $parentPage = Versioned::get_latest_version(self::class, $parentID);
             if (!$parentPage || !$parentPage->isOnDraft()) {
@@ -2593,7 +2607,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
                 if ($instance instanceof HiddenClass) {
                     continue;
                 }
-                if (!$instance->canCreate(null, ['Parent' => $this->ParentID ? $this->getParent() : null])) {
+                if (!$instance->canCreate(null, ['Parent' => $this->getParent()])) {
                     continue;
                 }
             }
@@ -2899,8 +2913,10 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
     {
         $parent = $this;
         $stack = [$parent];
-        while (($parent = $parent->getParent()) && $parent->exists()) {
+        $parent = $parent->getParent();
+        while ($parent) {
             array_unshift($stack, $parent);
+            $parent = $parent->getParent();
         }
 
         return isset($stack[$level-1]) ? $stack[$level-1] : null;
@@ -2913,8 +2929,9 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      */
     public function getPageLevel()
     {
-        if ($this->ParentID) {
-            return 1 + $this->getParent()->getPageLevel();
+        $parent = $parent->getParent();
+        if ($parent) {
+            return 1 + $parent->getPageLevel();
         }
         return 1;
     }
@@ -3157,7 +3174,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      */
     public function getParentType()
     {
-        return $this->ParentID == 0 ? 'root' : 'subpage';
+        return $this->ParentID === 0 ? 'root' : 'subpage';
     }
 
     /**

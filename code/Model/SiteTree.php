@@ -964,7 +964,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
     public function getParent()
     {
         if ($this->ParentID) {
-            return SiteTree::get_by_id(self::class, $parentID);
+            return SiteTree::get_by_id(self::class, $this->ParentID);
         }
     }
 

@@ -2911,9 +2911,8 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      */
     public function Level($level)
     {
-        $parent = $this;
-        $stack = [$parent];
-        $parent = $parent->getParent();
+        $stack = [$this];
+        $parent = $this->getParent();
         while ($parent) {
             array_unshift($stack, $parent);
             $parent = $parent->getParent();
@@ -2929,7 +2928,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      */
     public function getPageLevel()
     {
-        $parent = $parent->getParent();
+        $parent = $this->getParent();
         if ($parent) {
             return 1 + $parent->getPageLevel();
         }

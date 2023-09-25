@@ -379,12 +379,12 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
     protected $_cache_statusFlags = null;
 
     /**
-     * Plural form for SiteTree / Page classes. Not inherited by subclasses.
+     * Singular form for SiteTree / Page classes. Not inherited by subclasses.
      *
      * @config
      * @var string
      */
-    private static $base_plural_name = 'Pages';
+    private static $base_singular_name = 'Page';
 
     /**
      * Plural form for SiteTree / Page classes. Not inherited by subclasses.
@@ -392,7 +392,7 @@ class SiteTree extends DataObject implements PermissionProvider, i18nEntityProvi
      * @config
      * @var string
      */
-    private static $base_singular_name = 'Page';
+    private static $base_plural_name = 'Pages';
 
     /**
      * Description of the class functionality, typically shown to a user

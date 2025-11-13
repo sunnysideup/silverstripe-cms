@@ -16,7 +16,6 @@ use SilverStripe\Versioned\Versioned;
  */
 class CMSBatchActionsTest extends SapphireTest
 {
-
     protected static $fixture_file = 'CMSBatchActionsTest.yml';
 
     protected function setUp(): void
@@ -26,7 +25,7 @@ class CMSBatchActionsTest extends SapphireTest
         $this->logInWithPermission('ADMIN');
 
         // Tests assume strict hierarchy is enabled
-        Config::inst()->update(SiteTree::class, 'enforce_strict_hierarchy', true);
+        Config::inst()->set(SiteTree::class, 'enforce_strict_hierarchy', true);
 
         // published page
         $published = $this->objFromFixture(SiteTree::class, 'published');
@@ -142,10 +141,10 @@ class CMSBatchActionsTest extends SapphireTest
         $this->assertEquals($archivedID, $list->first()->ParentID);
 
         // Run restore
-        $result = json_decode($action->run($list), true);
+        $result = json_decode($action->run($list)->getBody(), true);
         $this->assertEquals(
             [
-                $archivedxID => $archivedxID
+                $archivedxID => $archivedxID,
             ],
             $result['success']
         );
@@ -162,13 +161,13 @@ class CMSBatchActionsTest extends SapphireTest
         $this->assertEquals(0, $list->last()->ParentID); // archived (parent)
 
         // Run restore
-        $result = json_decode($action->run($list), true);
+        $result = json_decode($action->run($list)->getBody(), true);
         $this->assertEquals(
             [
                 // Order of archived is opposite to order items are passed in, as
                 // these are sorted by level first
                 $archivedID => $archivedID,
-                $archivedyID => $archivedyID
+                $archivedyID => $archivedyID,
             ],
             $result['success']
         );

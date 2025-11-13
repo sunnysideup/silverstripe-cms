@@ -44,7 +44,7 @@ class LinkablePluginTest extends SapphireTest
 
     public function testResolver()
     {
-        $page = SiteTree::create([
+        $page = new SiteTree([
             'Title' => 'Test page',
             'URLSegment' => 'test-page',
             'ParentID' => 0,
@@ -52,7 +52,7 @@ class LinkablePluginTest extends SapphireTest
         $page->write();
         $page->publishRecursive();
 
-        $page = SiteTree::create([
+        $page = new SiteTree([
             'Title' => 'Other test page',
             'URLSegment' => 'other-test-page',
             'ParentID' => 0,
@@ -78,8 +78,8 @@ class LinkablePluginTest extends SapphireTest
         $this->assertTrue($result->exists());
         $this->assertCount(2, $result);
         $titles = $result->column('Title');
-        $this->assertTrue(in_array('Test page', $titles));
-        $this->assertTrue(in_array('Other test page', $titles));
+        $this->assertTrue(in_array('Test page', $titles ?? []));
+        $this->assertTrue(in_array('Other test page', $titles ?? []));
 
         $result = LinkablePlugin::applyLinkFilter(
             'test',

@@ -112,7 +112,7 @@ class CMSPageAddController extends CMSPageEditController
                 "PageType",
                 DBField::create_field(
                     'HTMLFragment',
-                    sprintf($numericLabelTmpl, 2, _t('SilverStripe\\CMS\\Controllers\\CMSMain.ChoosePageType', 'Choose page type'))
+                    sprintf($numericLabelTmpl ?? '', 2, _t('SilverStripe\\CMS\\Controllers\\CMSMain.ChoosePageType', 'Choose page type'))
                 ),
                 $pageTypes,
                 'Page'
@@ -121,7 +121,7 @@ class CMSPageAddController extends CMSPageEditController
 
         $parentModeField->setTitle(DBField::create_field(
             'HTMLFragment',
-            sprintf($numericLabelTmpl, 1, _t('SilverStripe\\CMS\\Controllers\\CMSMain.ChoosePageParentMode', 'Choose where to create this page'))
+            sprintf($numericLabelTmpl ?? '', 1, _t('SilverStripe\\CMS\\Controllers\\CMSMain.ChoosePageParentMode', 'Choose where to create this page'))
         ));
 
         $parentField->setSearchFunction(function ($sourceObject, $labelField, $search) {
@@ -131,10 +131,6 @@ class CMSPageAddController extends CMSPageEditController
                     'Title:PartialMatch' => $search,
                 ]);
         });
-
-        // TODO Re-enable search once it allows for HTML title display,
-        // see http://open.silverstripe.org/ticket/7455
-        // $parentField->setShowSearch(true);
 
         $parentModeField->addExtraClass('parent-mode');
 
@@ -192,12 +188,7 @@ class CMSPageAddController extends CMSPageEditController
         return $form;
     }
 
-    /**
-     * @param array $data
-     * @param Form $form
-     * @return HTTPResponse
-     */
-    public function doAdd($data, $form)
+    public function doAdd(array $data, Form $form): HTTPResponse
     {
         $className = isset($data['PageType']) ? $data['PageType'] : "Page";
         $parentID = isset($data['ParentID']) ? (int)$data['ParentID'] : 0;
@@ -241,7 +232,7 @@ class CMSPageAddController extends CMSPageEditController
         return $this->redirect(Controller::join_links($editController->Link('show'), $record->ID));
     }
 
-    public function doCancel($data, $form)
+    public function doCancel(array $data, Form $form): HTTPResponse
     {
         return $this->redirect(CMSMain::singleton()->Link());
     }

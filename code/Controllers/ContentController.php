@@ -2,6 +2,7 @@
 
 namespace SilverStripe\CMS\Controllers;
 
+use SilverStripe\Admin\Navigator\SilverStripeNavigator;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
@@ -29,7 +30,6 @@ use SilverStripe\View\ArrayData;
 use SilverStripe\View\Parsers\URLSegmentFilter;
 use SilverStripe\View\Requirements;
 use SilverStripe\View\SSViewer;
-use Translatable;
 
 /**
  * The most common kind of controller; effectively a controller linked to a {@link DataObject}.
@@ -45,7 +45,6 @@ use Translatable;
  * Subclasses of ContentController are generally instantiated by ModelAsController; this will create
  * a controller based on the URLSegment action variable, by looking in the SiteTree table.
  *
- * @todo Can this be used for anything other than SiteTree controllers?
  */
 class ContentController extends Controller
 {
@@ -156,7 +155,7 @@ class ContentController extends Controller
             $getVars = $_GET;
             unset($getVars['url']);
             if ($getVars) {
-                $url = "?" . http_build_query($getVars);
+                $url = "?" . http_build_query($getVars ?? []);
             } else {
                 $url = "";
             }
@@ -175,7 +174,6 @@ class ContentController extends Controller
         }
 
         // Check page permissions
-        /** @skipUpgrade */
         if ($this->dataRecord && $this->URLSegment != 'Security' && !$this->dataRecord->canView()) {
             Security::permissionFailure($this);
             return;
@@ -186,11 +184,9 @@ class ContentController extends Controller
      * This acts the same as {@link Controller::handleRequest()}, but if an action cannot be found this will attempt to
      * fall over to a child controller in order to provide functionality for nested URLs.
      *
-     * @param HTTPRequest $request
-     * @return HTTPResponse
      * @throws HTTPResponse_Exception
      */
-    public function handleRequest(HTTPRequest $request)
+    public function handleRequest(HTTPRequest $request): HTTPResponse
     {
         /** @var SiteTree $child */
         $child = null;
@@ -200,11 +196,6 @@ class ContentController extends Controller
         // control to a child controller. This allows for the creation of chains of controllers which correspond to a
         // nested URL.
         if ($action && SiteTree::config()->nested_urls && !$this->hasAction($action)) {
-            // See ModelAdController->getNestedController() for similar logic
-            if (class_exists('Translatable')) {
-                Translatable::disable_locale_filter();
-            }
-
             $filter = URLSegmentFilter::create();
 
             // look for a page with this URLSegment
@@ -213,10 +204,6 @@ class ContentController extends Controller
                 // url encode unless it's multibyte (already pre-encoded in the database)
                 'URLSegment' => $filter->getAllowMultibyte() ? $action : rawurlencode($action),
             ])->first();
-
-            if (class_exists('Translatable')) {
-                Translatable::enable_locale_filter();
-            }
         }
 
         // we found a page with this URLSegment.
@@ -226,25 +213,6 @@ class ContentController extends Controller
 
             $response = ModelAsController::controller_for($child)->handleRequest($request);
         } else {
-            // If a specific locale is requested, and it doesn't match the page found by URLSegment,
-            // look for a translation and redirect (see #5001). Only happens on the last child in
-            // a potentially nested URL chain.
-            if (class_exists('Translatable')) {
-                $locale = $request->getVar('locale');
-                if ($locale
-                    && i18n::getData()->validate($locale)
-                    && $this->dataRecord
-                    && $this->dataRecord->Locale != $locale
-                ) {
-                    $translation = $this->dataRecord->getTranslation($locale);
-                    if ($translation) {
-                        $response = new HTTPResponse();
-                        $response->redirect($translation->Link(), 301);
-                        throw new HTTPResponse_Exception($response);
-                    }
-                }
-            }
-
             Director::set_current_page($this->data());
 
             try {
@@ -334,8 +302,6 @@ class ContentController extends Controller
     /**
      * Returns the default log-in form.
      *
-     * @todo Check if here should be returned just the default log-in form or
-     *       all available log-in forms (also OpenID...)
      * @return \SilverStripe\Security\MemberAuthenticator\MemberLoginForm
      */
     public function LoginForm()
@@ -352,7 +318,6 @@ class ContentController extends Controller
         if (Director::isDev() || Permission::check('CMS_ACCESS_CMSMain') || Permission::check('VIEW_DRAFT_CONTENT')) {
             if ($this->dataRecord) {
                 Requirements::css('silverstripe/cms: client/dist/styles/SilverStripeNavigator.css');
-                Requirements::javascript('silverstripe/admin: thirdparty/jquery/jquery.js');
                 Requirements::javascript('silverstripe/cms: client/dist/js/SilverStripeNavigator.js');
 
                 $return = $nav = SilverStripeNavigator::get_for_record($this->dataRecord);
@@ -416,9 +381,6 @@ HTML;
 
     /**
      * Returns an RFC1766 compliant locale string, e.g. 'fr-CA'.
-     * Inspects the associated {@link dataRecord} for a {@link SiteTree->Locale} value if present,
-     * and falls back to {@link Translatable::get_current_locale()} or {@link i18n::default_locale()},
-     * depending if Translatable is enabled.
      *
      * Suitable for insertion into lang= and xml:lang=
      * attributes in HTML or XHTML output.
@@ -427,14 +389,7 @@ HTML;
      */
     public function ContentLocale()
     {
-        if ($this->dataRecord && $this->dataRecord->hasExtension('Translatable')) {
-            $locale = $this->dataRecord->Locale;
-        } elseif (class_exists('Translatable') && SiteTree::has_extension('Translatable')) {
-            $locale = Translatable::get_current_locale();
-        } else {
-            $locale = i18n::get_locale();
-        }
-
+        $locale = i18n::get_locale();
         return i18n::convert_rfc1766($locale);
     }
 
@@ -491,10 +446,9 @@ HTML;
             $this->httpError(410);
         }
 
-        // TODO Allow this to work when allow_url_fopen=0
         if (isset($_SESSION['StatsID']) && $_SESSION['StatsID']) {
             $url = 'http://ss2stat.silverstripe.com/Installation/installed?ID=' . $_SESSION['StatsID'];
-            @file_get_contents($url);
+            @file_get_contents($url ?? '');
         }
 
         global $project;
@@ -532,11 +486,11 @@ HTML;
         $unsuccessful = new ArrayList();
         foreach ($installfiles as $installfile) {
             $installfilepath = PUBLIC_PATH . '/' . $installfile;
-            if (file_exists($installfilepath)) {
-                @unlink($installfilepath);
+            if (file_exists($installfilepath ?? '')) {
+                @unlink($installfilepath ?? '');
             }
 
-            if (file_exists($installfilepath)) {
+            if (file_exists($installfilepath ?? '')) {
                 $unsuccessful->push(new ArrayData(['File' => $installfile]));
             }
         }

@@ -81,7 +81,7 @@ nl:
     COMPAREMODE: 'Vergelijken (selecteer 2)'
     COMPARINGVERSION: 'U vergelijkt versie {version1} en {version2}.'
     MENUTITLE: Geschiedenis
-    MULTISELECT: 'Meervoudige acties'
+    MULTISELECT: 'Bulk acties'
     NOTPUBLISHED: 'Niet gepubliceerd'
     NO_PREVIEW: 'Geen voorbeeld beschikbaar'
     PUBLISHER: 'Gepubliceerd door'
@@ -122,7 +122,7 @@ nl:
     Email: E-mail
     INSTALL_SUCCESS: 'Installatie voltooid!'
     InstallFilesDeleted: 'De installatiebestanden zijn verwijderd.'
-    InstallSecurityWarning: 'Om veiligheidsredenen dient u de installatiebestanden nu te verwijderen, tenzij u van plan bent om later opnieuw te installeren (<em>dit vereist   toegang als administrator, zie hierboven</em>). De webserver heeft vanaf nu alleen nog schrijftoegang nodig tot de "assets" map, u kunt de schrijftoegang van alle andere mappen verwijderen. <a href="{link}" style="text-align:center;">Klik hier om de installatiebestanden te verwijderen.</a> '
+    InstallSecurityWarning: 'Om veiligheidsredenen dient u de installatiebestanden nu te verwijderen, tenzij u van plan bent om later opnieuw te installeren (<em>dit vereist  toegang als administrator, zie hierboven</em>). De webserver heeft vanaf nu alleen nog schrijftoegang nodig tot de "assets" map, u kunt de schrijftoegang van alle andere mappen verwijderen. <a href="{link}" style="text-align:center;">Klik hier om de installatiebestanden te verwijderen.</a> '
     InstallSuccessCongratulations: 'SilverStripe is met succes geïnstalleerd!'
     LOGGEDINAS: 'Ingelogd als'
     LOGIN: Inloggen
@@ -134,6 +134,7 @@ nl:
     Password: Wachtwoord
     PostInstallTutorialIntro: 'Deze website is een eenvoudige versie van een SilverStripe 3 website. Voor uitbreidingen kunt u hier een kijkje nemen: {link}.'
     StartEditing: 'U kunt de inhoud aanpassen via <a href="{link}">het CMS</a>.'
+    UNVERSIONEDPREVIEW: Voorbeeld
     UnableDeleteInstall: 'De installatiebestanden konden niet verwijderd worden. Verwijder onderstaande bestanden handmatig:'
     VIEWPAGEIN: 'Bekijk pagina in:'
   SilverStripe\CMS\Controllers\SilverStripeNavigator:
@@ -153,6 +154,7 @@ nl:
     OK: OK
   SilverStripe\CMS\Model\RedirectorPage:
     DESCRIPTION: 'Stuurt door naar een interne pagina of een externe URL'
+    FILE: Bestand
     HEADER: 'Deze pagina zal gebruikers naar een andere pagina doorsturen (redirect)'
     OTHERURL: 'Andere website URL'
     PLURALNAME: Verwijzingspagina
@@ -161,9 +163,11 @@ nl:
       other: '{count} Verwijzingspagina''s'
     REDIRECTTO: 'Doorverwijzen naar'
     REDIRECTTOEXTERNAL: 'Een andere website'
+    REDIRECTTOFILE: 'Een bestand op deze website'
     REDIRECTTOPAGE: 'Een pagina op deze website'
     SINGULARNAME: Verwijzingspagina
     YOURPAGE: 'Pagina op deze website'
+    has_one_LinkTo: 'Verwijs naar'
   SilverStripe\CMS\Model\RedirectorPageController:
     HASBEENSETUP: 'Er is een verwijspagina ingesteld, zonder ergens naar te verwijzen.'
   SilverStripe\CMS\Model\SiteTree:
@@ -205,6 +209,7 @@ nl:
     HTMLEDITORTITLE: Inhoud
     INHERIT: 'Overnemen van de bovenliggende pagina'
     INHERITSITECONFIG: 'Overnemen van site-instellingen'
+    InvalidExtraMeta: 'De HTML bij Andere meta-tags is incorrect'
     LASTPUBLISHED: 'Laatst gepubliceerd'
     LASTSAVED: 'Laatst opgeslagen'
     LASTUPDATED: 'Laatst bijgewerkt'
@@ -263,7 +268,12 @@ nl:
     VIRTUALPAGEWARNINGSETTINGS: 'U dient een gekoppelde pagina te selecteren op het hoofdscherm voordat u kunt publiceren.'
     Viewers: Bekijkersgroepen
     Visibility: Zichtbaarheid
+    db_Content: Inhoud
+    db_Sort: Volgorde
+    db_Title: Titel
+    db_URLSegment: 'URL segment'
     has_one_Parent: 'Bovenliggende pagina'
+    has_one_Subsite: Subsite
     many_many_BackLinkTracking: 'Backlinks traceren'
     many_many_ImageTracking: 'Afbeeldingen traceren'
     many_many_LinkTracking: 'Links traceren'
@@ -279,6 +289,9 @@ nl:
       one: '1 pagina link'
       other: '{count} pagina links'
     SINGULARNAME: 'Pagina link'
+    has_one_Parent: Bovenliggende
+  SilverStripe\CMS\Model\SiteTreeLinkTracking:
+    many_many_LinkTracking: 'Links volgen'
   SilverStripe\CMS\Model\VirtualPage:
     CHOOSE: 'Gekoppelde pagina'
     DESCRIPTION: 'Toont de inhoud van een andere pagina'

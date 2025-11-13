@@ -83,8 +83,8 @@ de:
     MENUTITLE: Historie
     MULTISELECT: Massenaktionen
     NOTPUBLISHED: 'Nicht veröffentlicht'
-    PREVIEW: 'Vorschau der Webseite'
     NO_PREVIEW: 'Keine Vorschau verfügbar'
+    PREVIEW: 'Vorschau der Webseite'
     PUBLISHER: Herausgeber
     REVERTTOTHISVERSION: 'Zurück zu dieser Version'
     SHOWUNPUBLISHED: 'Zeige unveröffentlichte Versionen'
@@ -135,6 +135,7 @@ de:
     Password: Passwort
     PostInstallTutorialIntro: 'Diese Webseite ist eine einfache Version von SilverStripe 3. Weitere Funktionen können Sie unter {link} finden.'
     StartEditing: 'Sie können den Inhalt <a href="{link}">im CMS</a> bearbeiten.'
+    UNVERSIONEDPREVIEW: Vorschau
     UnableDeleteInstall: 'Die Installationsdateien konnten nicht gelöscht werden. Bitte löschen Sie die Dateien manuell.'
     VIEWPAGEIN: 'Seite anzeigen in:'
   SilverStripe\CMS\Controllers\SilverStripeNavigator:
@@ -154,9 +155,10 @@ de:
     OK: OK
   SilverStripe\CMS\Model\RedirectorPage:
     DESCRIPTION: 'Leitet zu einer anderen internen oder externen Seite weiter'
+    FILE: Datei
     HEADER: 'Diese Seite wird Nutzer auf eine andere Seite weiterleiten'
     OTHERURL: 'Andere Webseiten URL'
-    PLURALNAME: Weiterleitungsseiten
+    PLURALNAME: 'Basis Seiten'
     PLURALS:
       one: 'Eine Weiterleitungsseite'
       other: '{count} Weiterleitungsseiten'
@@ -165,6 +167,7 @@ de:
     REDIRECTTOPAGE: 'Eine Seite auf Ihrer Website'
     SINGULARNAME: Weiterleitungsseite
     YOURPAGE: 'Seite auf Ihrer Website'
+    has_one_LinkTo: 'Verweis zu'
   SilverStripe\CMS\Model\RedirectorPageController:
     HASBEENSETUP: 'Eine Weiterleitungsseite wurde erstellt ohne das eine Weiterleitung definiert wurde.'
   SilverStripe\CMS\Model\SiteTree:
@@ -263,7 +266,12 @@ de:
     VIRTUALPAGEWARNINGSETTINGS: 'Um diese Seite veröffentlichen zu können müssen Sie zu erst eine verknüpfte Seite im Reiter "Haupt-Inhalt" auswählen'
     Viewers: 'Betrachter Gruppen'
     Visibility: Sichtbarkeit
+    db_Content: Inhalt
+    db_Sort: Sortierung
+    db_Title: Titel
+    db_URLSegment: URL-Segment
     has_one_Parent: 'Übergeordnete Seite'
+    has_one_Subsite: Subseite
     many_many_BackLinkTracking: Rückverweis-Verfolgung
     many_many_ImageTracking: Bild-Verfolgung
     many_many_LinkTracking: Link-Verfolgung
@@ -279,13 +287,14 @@ de:
       one: 'Ein Seitenbaum Link'
       other: '{count} Seitenbaum Links'
     SINGULARNAME: Seiten-Link
+    has_one_Parent: Übergeordnet
   SilverStripe\CMS\Model\VirtualPage:
     CHOOSE: 'Verknüpfte Seite'
     DESCRIPTION: 'Zeigt den Inhalt einer anderen Seite an'
     EditLink: Bearbeiten
     HEADER: 'Dies ist eine virtuelle Seite'
     HEADERWITHLINK: 'Dies ist eine virtuelle Seite, die den Inhalt von "{title}" ({link}) kopiert'
-    PLURALNAME: 'Virtuelle Seiten'
+    PLURALNAME: 'Basis Seiten'
     PLURALS:
       one: 'Eine Virtuelle Seite'
       other: '{count} Virtuelle Seiten'
@@ -327,6 +336,7 @@ de:
     ParameterLiveCheckbox: 'Veröffentlichte Seite überprüfen'
   SilverStripe\CMS\Reports\EmptyPagesReport:
     ContentGroupTitle: Inhaltsberichte
+    EMPTYPAGES: 'Seiten ohne Inhalt'
   SilverStripe\CMS\Reports\RecentlyEditedReport:
     ContentGroupTitle: Inhaltsberichte
     LAST2WEEKS: 'Seiten die in den letzten 2 Wochen bearbeitet wurden'

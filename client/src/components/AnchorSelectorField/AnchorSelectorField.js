@@ -8,7 +8,8 @@ import SilverStripeComponent from 'lib/SilverStripeComponent';
 import * as anchorSelectorActions from 'state/anchorSelector/AnchorSelectorActions';
 import anchorSelectorStates from 'state/anchorSelector/AnchorSelectorStates';
 import fieldHolder from 'components/FieldHolder/FieldHolder';
-import { Creatable } from 'react-select';
+import CreatableSelect from 'react-select/creatable';
+import EmotionCssCacheProvider from 'containers/EmotionCssCacheProvider/EmotionCssCacheProvider';
 import getFormState from 'lib/getFormState';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
@@ -49,6 +50,12 @@ class AnchorSelectorField extends SilverStripeComponent {
       return Promise.resolve();
     }
 
+    // Get anchors that belong to the current field
+    let fieldAnchors = [];
+    if (props.loadingState === anchorSelectorStates.FIELD_ONLY) {
+      fieldAnchors = this.props.anchors;
+    }
+
     // Mark page updating
     props.actions.anchorSelector.beginUpdating(props.pageId);
 
@@ -57,9 +64,11 @@ class AnchorSelectorField extends SilverStripeComponent {
     return fetch(fetchURL, { credentials: 'same-origin' })
       .then(response => response.json())
       .then((anchors) => {
+        // Fold in field anchors and ensure array has only unique values
+        const allAnchors = [...new Set([...anchors, ...fieldAnchors])];
         // Update anchors
-        props.actions.anchorSelector.updated(props.pageId, anchors);
-        return anchors;
+        props.actions.anchorSelector.updated(props.pageId, allAnchors);
+        return allAnchors;
       })
       .catch((error) => {
         props.actions.anchorSelector.updateFailed(props.pageId);
@@ -109,26 +118,27 @@ class AnchorSelectorField extends SilverStripeComponent {
   }
 
   render() {
-    const inputProps = {
-      id: this.props.id,
-    };
-    const className = classnames('anchorselectorfield', this.props.extraClass);
+    const { extraClass, CreatableSelectComponent } = this.props;
+    const className = classnames('anchorselectorfield', extraClass);
     const options = this.getDropdownOptions();
-    const value = this.props.value || '';
+    const rawValue = this.props.value || '';
     const placeholder = i18n._t('CMS.ANCHOR_SELECT_OR_TYPE', 'Select or enter anchor');
     return (
-      <Creatable
-        searchable
-        options={options}
-        className={className}
-        name={this.props.name}
-        inputProps={inputProps}
-        onChange={this.handleChange}
-        onBlurResetsInput
-        value={value}
-        placeholder={placeholder}
-        labelKey="value"
-      />
+      <EmotionCssCacheProvider>
+        <CreatableSelectComponent
+          isSearchable
+          isClearable
+          options={options}
+          className={className}
+          name={this.props.name}
+          onChange={this.handleChange}
+          value={{ value: rawValue }}
+          noOptionsMessage={() => i18n._t('CMS.ANCHOR_NO_OPTIONS', 'No options')}
+          placeholder={placeholder}
+          getOptionLabel={({ value }) => value}
+          classNamePrefix="anchorselectorfield"
+        />
+      </EmotionCssCacheProvider>
     );
   }
 }
@@ -143,8 +153,8 @@ AnchorSelectorField.propTypes = {
   pageId: PropTypes.number,
   anchors: PropTypes.array,
   loadingState: PropTypes.oneOf(Object
-      .keys(anchorSelectorStates)
-      .map((key) => anchorSelectorStates[key])),
+    .keys(anchorSelectorStates)
+    .map((key) => anchorSelectorStates[key])),
   onLoadingError: PropTypes.func,
   data: PropTypes.shape({
     endpoint: PropTypes.string,
@@ -157,6 +167,7 @@ AnchorSelectorField.defaultProps = {
   extraClass: '',
   onLoadingError: noop,
   attributes: {},
+  CreatableSelectComponent: CreatableSelect
 };
 
 function mapStateToProps(state, ownProps) {
@@ -174,6 +185,7 @@ function mapStateToProps(state, ownProps) {
     && (
       page.loadingState === anchorSelectorStates.SUCCESS
       || page.loadingState === anchorSelectorStates.DIRTY
+      || page.loadingState === anchorSelectorStates.FIELD_ONLY
     )
   ) {
     // eslint-disable-next-line prefer-destructuring

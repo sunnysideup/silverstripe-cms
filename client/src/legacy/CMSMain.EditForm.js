@@ -3,7 +3,7 @@
  */
 import $ from 'jquery';
 import i18n from 'i18n';
-import reactConfirm from "@silverstripe/reactstrap-confirm";
+import reactConfirm from 'reactstrap-confirm';
 
 $.entwine('ss', function($){
 	/**
@@ -36,7 +36,7 @@ $.entwine('ss', function($){
 
 			if (urlSegmentInput.length > 0) {
 				self._addActions();
-				this.bind('change', function(e) {
+				this.on('change', function(e) {
 					var origTitle = self.data('OrigVal');
 					var title = self.val();
 					self.data('OrigVal', title);
@@ -154,8 +154,8 @@ $.entwine('ss', function($){
 		// Constructor: onmatch
 		onmatch : function() {
 			var self = this;
-			this.find(':input[name=ParentType]').bind('click', function(e) {self._toggleSelection(e);});
-			this.find('.TreeDropdownField').bind('change', function(e) {self._changeParentId(e);});
+			this.find(':input[name=ParentType]').on('click', function(e) {self._toggleSelection(e);});
+			this.find('.TreeDropdownField').on('change', function(e) {self._changeParentId(e);});
 
 			this._changeParentId();
 			this._toggleSelection();
@@ -497,12 +497,13 @@ $.entwine('ss', function($){
         'By changing the URL segment visitors will not be able to view it.'
       );
 
-      if (await reactConfirm(message, {
+      if (await reactConfirm({
         title: i18n._t(
           'CMS.RemoveHomePageWarningTitle',
           'Remove your home page?'
         ),
-        confirmLabel: i18n._t(
+        message,
+        confirmText: i18n._t(
           'CMS.RemoveHomePageWarningLabel',
           'Remove'
         ),

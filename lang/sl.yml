@@ -83,6 +83,7 @@ sl:
     MENUTITLE: Zgodovina
     MULTISELECT: 'Paketno urejanje'
     NOTPUBLISHED: 'Ni objavljeno'
+    NO_PREVIEW: 'Predogled ni na voljo'
     PREVIEW: Predogled
     PUBLISHER: Objavljavec
     REVERTTOTHISVERSION: 'Povrni v to različico'
@@ -134,6 +135,7 @@ sl:
     Password: Geslo
     PostInstallTutorialIntro: 'Spletno mesto je poenostavljena različica spletišča na Silvestripe 3. Za razširitev obiščite {link}.'
     StartEditing: 'Zdaj lahko začnete urejati vsebino. Prijavite se v <a href="{link}">sistem za upravljanje z vsebino</a>.'
+    UNVERSIONEDPREVIEW: Predogled
     UnableDeleteInstall: 'Namestitvenih datotek nismo mogli odstraniti, zato spodaj navedene datoteke odstranite ročno.'
     VIEWPAGEIN: 'Ogled strani v:'
   SilverStripe\CMS\Controllers\SilverStripeNavigator:
@@ -153,19 +155,21 @@ sl:
     OK: 'V redu'
   SilverStripe\CMS\Model\RedirectorPage:
     DESCRIPTION: 'Uporabnik bo preusmerjen na stran s tega spletišča ali na poljuben spletni naslov.'
+    FILE: Datoteka
     HEADER: 'Ta stran bo preusmerila uporabnike na drugo stran'
     OTHERURL: 'URL druge spletne strani'
-    PLURALNAME: 'Preusmeritvene strani'
+    PLURALNAME: 'Izvorna stran'
     PLURALS:
-      one: 'Preusmeritvena stran'
-      two: '{count} preusmeritvenih strani'
-      few: '{count} preusmeritvenih strani'
-      other: '{count} preusmeritvenih strani'
+      few: '{count} izvornih strani'
+      one: 'Izvorna stran'
+      other: '{count} izvornih strani'
+      two: '{count} izvorni strani'
     REDIRECTTO: 'Preusmeri na'
     REDIRECTTOEXTERNAL: 'Druga spletna stran'
     REDIRECTTOPAGE: 'Stran na tvojem spletnem mestu'
     SINGULARNAME: 'Preusmeritvena stran'
     YOURPAGE: 'Stran na tvojem spletnem mestu'
+    has_one_LinkTo: 'Poveži na'
   SilverStripe\CMS\Model\RedirectorPageController:
     HASBEENSETUP: 'Nastavljena preusmeritev še nima določenega cilja.'
   SilverStripe\CMS\Model\SiteTree:
@@ -237,10 +241,10 @@ sl:
     PERMISSION_GRANTACCESS_HELP: 'Dovoli nastavitve pravic za dostop do izbrane strani v sklopu "Strani".'
     PLURALNAME: Strani
     PLURALS:
-      one: Stran
-      two: '{count} strani'
       few: '{count} strani'
+      one: Stran
       other: '{count} strani'
+      two: '{count} strani'
     PageTypNotAllowedOnRoot: 'Tip strani "{type}" ne more biti del osnovne korenske ravni'
     PageTypeNotAllowed: 'Tip strani "{type}" ne more biti podrejen tej nadrejeni strani.'
     REMOVE_INSTALL_WARNING: 'Pozor: Zaradi varnosti priporočamo, da odstranite install.php it te SilverStripe namestitve.'
@@ -267,6 +271,9 @@ sl:
     VIRTUALPAGEWARNINGSETTINGS: 'Najprej v glavnih vsebinskih poljih izberite povezano stran, potem boste lahko objavili stran.'
     Viewers: 'Skupine obiskovalcev (viewers)'
     Visibility: Vidnost
+    db_Content: Vsebina
+    db_Title: Naziv
+    db_URLSegment: 'Naslov URL'
     has_one_Parent: 'Nadrejena stran'
     many_many_BackLinkTracking: 'Spremljanje povezav "nazaj"'
     many_many_ImageTracking: 'Spremljanje slik'
@@ -280,10 +287,10 @@ sl:
   SilverStripe\CMS\Model\SiteTreeLink:
     PLURALNAME: 'Povezave v strukturi'
     PLURALS:
-      one: 'Povezava v strukturi'
-      two: '{count} povezavi v strukturi'
       few: '{count} povezav v strukturi'
+      one: 'Povezava v strukturi'
       other: '{count} povezav v strukturi'
+      two: '{count} povezavi v strukturi'
     SINGULARNAME: 'Povezava v strukturi'
   SilverStripe\CMS\Model\VirtualPage:
     CHOOSE: 'Povezana stran'
@@ -291,12 +298,12 @@ sl:
     EditLink: uredi
     HEADER: 'To je navidezna stran'
     HEADERWITHLINK: 'To je virtualna stran, ki vsebino črpa iz strani "{title}" ({link})'
-    PLURALNAME: 'Virtualne strani'
+    PLURALNAME: 'Izvorna stran'
     PLURALS:
-      one: 'Virtualna stran'
-      two: '{count} virtualni strani'
-      few: '{count} virtualnih strani'
-      other: '{count} virtualna stran'
+      few: '{count} izvornih strani'
+      one: 'Izvorna stran'
+      other: '{count}  izvornih strani'
+      two: '{count} izvorni strani'
     PageTypNotAllowedOnRoot: 'Tipa izvorne strani ({type}), ki je osnova za to virtualno stran, ni dovoljeno umestiti na korenskem nivoju'
     SINGULARNAME: 'Virtualna stran'
   SilverStripe\CMS\Reports\BrokenFilesReport:

@@ -133,6 +133,7 @@ fr:
     Password: 'Mot de passe'
     PostInstallTutorialIntro: 'Ceci est un site Silverstripe 3 minimaliste. Pour le déployer, veuillez regarder {link}.'
     StartEditing: 'Vous pouvez commencer à créer ou modifier du contenu en accédant au <a href="{link}">the CMS</a>.'
+    UNVERSIONEDPREVIEW: Aperçu
     UnableDeleteInstall: 'Impossible de supprimer les fichiers d''installation. Merci de supprimer manuellement les fichiers suivants :'
     VIEWPAGEIN: 'Voir la page dans :'
   SilverStripe\CMS\Controllers\SilverStripeNavigator:
@@ -152,9 +153,10 @@ fr:
     OK: OK
   SilverStripe\CMS\Model\RedirectorPage:
     DESCRIPTION: 'Redirige vers une page interne ou une URL externe'
+    FILE: Fichier
     HEADER: 'Cette page va rediriger les utilisateurs vers une autre page'
     OTHERURL: 'URL d''un autre site web'
-    PLURALNAME: 'Pages de redirection'
+    PLURALNAME: 'Base Pages'
     PLURALS:
       one: 'Une page de redirection'
       other: '{count} pages de redirection'
@@ -163,6 +165,7 @@ fr:
     REDIRECTTOPAGE: 'Une page de votre site web'
     SINGULARNAME: 'Page de redirection'
     YOURPAGE: 'Page de votre site web'
+    has_one_LinkTo: 'Lier à'
   SilverStripe\CMS\Model\RedirectorPageController:
     HASBEENSETUP: 'Une page de redirection a été configurée... Sans redirection'
   SilverStripe\CMS\Model\SiteTree:
@@ -232,6 +235,7 @@ fr:
     PERMISSION_GRANTACCESS_HELP: 'Autoriser le réglage de restrictions spécifiques dans la section "Pages".'
     PLURALNAME: Pages
     PLURALS:
+      many: '{count} pages'
       one: 'Une page'
       other: '{count} pages'
     PageTypNotAllowedOnRoot: "Le type de page «\_{type}\_» n’est pas autorisé à la racine du site"
@@ -259,6 +263,11 @@ fr:
     VIRTUALPAGEWARNINGSETTINGS: 'Veuillez choisir une page liée dans le contenu principal avant de publier'
     Viewers: 'Groupes de visualisation'
     Visibility: Visibilité
+    db_Content: Contenu
+    db_Sort: Tri
+    db_Title: Titre
+    db_URLSegment: 'Segment d''URL'
+    db_Version: Version
     has_one_Parent: 'Page parente'
     many_many_BackLinkTracking: 'Suivi des liens retour'
     many_many_ImageTracking: 'Suivi des images'
@@ -267,13 +276,19 @@ fr:
     TITLE_INDEX: '#'
     TITLE_TYPE: Type
     TITLE_USED_ON: 'Utilisé dans'
+  SilverStripe\CMS\Model\SiteTreeFileFormFactoryExtension:
+    USAGE: Usage
+  SilverStripe\CMS\Model\SiteTreeLink:
+    PLURALNAME: 'Liens Site Tree'
+    SINGULARNAME: 'Lien Site Tree'
+    has_one_Parent: Parent
   SilverStripe\CMS\Model\VirtualPage:
     CHOOSE: 'Page liée'
     DESCRIPTION: 'Affiche le contenu d''une autre page'
     EditLink: éditer
     HEADER: 'Ceci est une page virtuelle'
     HEADERWITHLINK: 'Ceci est une page virtuelle dupliquant le contenu de "{title}" ({link})'
-    PLURALNAME: 'Page virtuelles'
+    PLURALNAME: 'Base Pages'
     PLURALS:
       one: 'Une page virtuelle'
       other: '{count} pages virtuelles'

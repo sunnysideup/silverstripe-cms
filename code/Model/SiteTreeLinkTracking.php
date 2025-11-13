@@ -27,7 +27,7 @@ use SilverStripe\View\Parsers\HTMLValue;
  * field to your `db` config and this extension will ensure it's flagged appropriately.
  *
  * @property DataObject|SiteTreeLinkTracking $owner
- * @method ManyManyThroughList LinkTracking() List of site pages linked on this dataobject
+ * @method ManyManyThroughList<SiteTree> LinkTracking()
  */
 class SiteTreeLinkTracking extends DataExtension
 {
@@ -116,13 +116,20 @@ class SiteTreeLinkTracking extends DataExtension
         $allFields = DataObject::getSchema()->fieldSpecs($this->owner);
         $linkedPages = [];
         $anyBroken = false;
+        $hasTrackedFields = false;
         foreach ($allFields as $field => $fieldSpec) {
             $fieldObj = $this->owner->dbObject($field);
             if ($fieldObj instanceof DBHTMLText) {
+                $hasTrackedFields = true;
                 // Merge links in this field with global list.
                 $linksInField = $this->trackLinksInField($field, $anyBroken);
                 $linkedPages = array_merge($linkedPages, $linksInField);
             }
+        }
+
+        // We need a boolean flag instead of checking linkedPages because it can be empty when pages are removed
+        if (!$hasTrackedFields) {
+            return;
         }
 
         // Soft support for HasBrokenLink db field (e.g. SiteTree)
@@ -190,13 +197,13 @@ class SiteTreeLinkTracking extends DataExtension
     protected function toggleElementClass(DOMElement $domReference, $class, $toggle)
     {
         // Get all existing classes.
-        $classes = array_filter(explode(' ', trim($domReference->getAttribute('class'))));
+        $classes = array_filter(explode(' ', trim($domReference->getAttribute('class') ?? '')));
 
         // Add or remove the broken class from the link, depending on the link status.
         if ($toggle) {
             $classes = array_unique(array_merge($classes, [$class]));
         } else {
-            $classes = array_diff($classes, [$class]);
+            $classes = array_diff($classes ?? [], [$class]);
         }
 
         if (!empty($classes)) {

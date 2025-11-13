@@ -7,7 +7,9 @@ Feature: Edit a page
     Given a "page" "About Us" has the "Content" "<p>My content</p>"
     And a "image" "assets/file1.jpg"
     #And a file "assets/file1.jpg" with changes "image"="assets/folder1/file2.jpg" and "page"="About Us"
-    And I am logged in with "ADMIN" permissions
+		And the "group" "AUTHOR" has permissions "Access to 'Pages' section"
+    And the "group" "EDITOR" has permissions "Access to 'Pages' section" and "SITETREE_GRANT_ACCESS"
+    And I am logged in as a member of "AUTHOR" group
     And I go to "/admin/pages"
     Then I should see "About Us" in the tree
 
@@ -52,7 +54,7 @@ Feature: Edit a page
     Then the rendered HTML should contain "/about-modified-us"
 
     # Add metadata
-    When I click on the "#ui-accordion-Form_EditForm_Metadata-header-0" element
+    When I click on the ".ui-accordion-header" element
     And I wait for 1 second
     And I fill in "Meta Description" with "MyMetaDesc"
 
@@ -62,7 +64,7 @@ Feature: Edit a page
     Then I should see "About Us"
     And I go to "/about-modified-us"
     Then I should not see "About Us"
-    
+
     # Assert URL segment + metadata on frontend
     When I go to "/admin/pages"
     And I click on "About Us" in the tree
@@ -79,19 +81,19 @@ Feature: Edit a page
     When I click on "About Us" in the tree
 
     # Embed files from the "Files" section of the admin area
-    And I click on the "div[aria-label='Insert from Files'] button" element
+    And I press the "Insert from Files" HTML field button
     And I click on the ".gallery__files .gallery-item__thumbnail" element
     And I press the "Insert file" button
 
     # Link to a file in the "Files" section of the admin area
-    And I click on the "div[aria-label='Insert link [Ctrl+K]'] button" element
-    And I select "Link to a file" from the TinyMCE menu with javascript
+    And I press the "Insert link" HTML field button
+    And I click "Link to a file" in the ".tox-collection__group" element
     And I click on the ".gallery__files .gallery-item__thumbnail" element
     And I fill in "Form_fileInsertForm_Text" with "MyImage"
     And I press the "Link to file" button
 
     # Embed media from a URL
-    And I click on the "div[aria-label='Insert media via URL'] button" element
+    And I press the "Insert media via URL" button
     And I fill in "Form_remoteCreateForm_Url" with "https://www.youtube.com/watch?v=ScMzIvxBSi4"
     And I press "Add media"
     And I wait for 15 seconds
@@ -115,6 +117,10 @@ Feature: Edit a page
     Then I should see "Please choose a linked page in the main content fields in order to publish"
 
   Scenario: Change permission levels for who can view and edit the page, at an individual page level
+    Given I am not logged in
+    And I am logged in as a member of "EDITOR" group
+    And I go to "/admin/pages"
+    Then I should see "About Us" in the tree
     When I click on "About Us" in the tree
     And I click the "Settings" CMS tab
     And I select the "Form_EditForm_CanViewType_LoggedInUsers" radio button

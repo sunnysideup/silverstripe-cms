@@ -31,14 +31,14 @@ class RecentlyEditedReport extends Report
         $threshold = strtotime('-14 days', DBDatetime::now()->getTimestamp());
         return SiteTree::get()
             ->filter('LastEdited:GreaterThan', date("Y-m-d H:i:s", $threshold))
-            ->sort("\"$tableName\".\"LastEdited\" DESC");
+            ->orderBy("\"$tableName\".\"LastEdited\" DESC");
     }
 
     public function columns()
     {
         return [
             "Title" => [
-                "title" => "Title", // todo: use NestedTitle(2)
+                "title" => "Title",
                 "link" => true,
             ],
         ];

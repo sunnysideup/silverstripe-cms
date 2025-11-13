@@ -4,7 +4,6 @@ use SilverStripe\Admin\CMSMenu;
 use SilverStripe\CMS\Controllers\CMSMain;
 use SilverStripe\CMS\Controllers\CMSPageAddController;
 use SilverStripe\CMS\Controllers\CMSPageEditController;
-use SilverStripe\CMS\Controllers\CMSPageHistoryController;
 use SilverStripe\CMS\Controllers\CMSPageSettingsController;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Core\Manifest\ModuleLoader;
@@ -33,9 +32,7 @@ ShortcodeParser::get('default')->register(
     [SiteTree::class, 'link_shortcode_handler']
 );
 
-// TODO Remove once we can configure CMSMenu through static, nested configuration files
 CMSMenu::remove_menu_class(CMSMain::class);
 CMSMenu::remove_menu_class(CMSPageEditController::class);
 CMSMenu::remove_menu_class(CMSPageSettingsController::class);
-CMSMenu::remove_menu_class(CMSPageHistoryController::class);
 CMSMenu::remove_menu_class(CMSPageAddController::class);

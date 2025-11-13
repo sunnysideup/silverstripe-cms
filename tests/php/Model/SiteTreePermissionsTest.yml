@@ -11,6 +11,8 @@ SilverStripe\Security\Permission:
     Code: CMS_ACCESS_CMSMain
   grantaccess:
     Code: SITETREE_GRANT_ACCESS
+  allsections:
+    Code: CMS_ACCESS_LeftAndMain
 SilverStripe\Security\Group:
   subadmingroup:
     Title: Create, edit and delete pages
@@ -20,6 +22,9 @@ SilverStripe\Security\Group:
     Title: Edit existing pages
     Code: editorgroup
     Permissions: =>SilverStripe\Security\Permission.cmsmain2
+  allsectionsgroup:
+    Title: All Section Editors
+    Permissions: =>SilverStripe\Security\Permission.allsections
   websiteusers:
     Title: View certain restricted pages
 SilverStripe\Security\Member:
@@ -31,11 +36,15 @@ SilverStripe\Security\Member:
     Email: editor@test.com
     Password: test
     Groups: =>SilverStripe\Security\Group.editorgroup
+  allsections:
+    Email: allsections@test.com
+    Password: test
+    Groups: =>SilverStripe\Security\Group.allsectionsgroup
   websiteuser:
     Email: websiteuser@test.com
     Password: test
     Groups: =>SilverStripe\Security\Group.websiteusers
-Page:
+SilverStripe\CMS\Model\SiteTree:
   standardpage:
     URLSegment: standardpage
   restrictedViewLoggedInUsers:
@@ -66,7 +75,7 @@ Page:
     URLSegment: parent-restrictedViewOnlySubadminGroup
   child_restrictedViewOnlySubadminGroup:
     CanViewType: Inherit
-    Parent: =>Page.parent_restrictedViewOnlySubadminGroup
+    Parent: =>SilverStripe\CMS\Model\SiteTree.parent_restrictedViewOnlySubadminGroup
     URLSegment: child-restrictedViewOnlySubadminGroup
   parent_restrictedEditOnlySubadminGroup:
     CanEditType: OnlyTheseUsers
@@ -74,7 +83,7 @@ Page:
     URLSegment: parent-restrictedEditOnlySubadminGroup
   child_restrictedEditOnlySubadminGroup:
     CanEditType: Inherit
-    Parent: =>Page.parent_restrictedEditOnlySubadminGroup
+    Parent: =>SilverStripe\CMS\Model\SiteTree.parent_restrictedEditOnlySubadminGroup
     URLSegment: child-restrictedEditOnlySubadminGroup
   deleteTestParentPage:
     CanEditType: Inherit
@@ -86,3 +95,9 @@ Page:
   draftOnlyPage:
     CanViewType: Anyone
     URLSegment: draft-only
+  originalpage:
+    Title: Original Page for duplicate
+    CanEditType: OnlyTheseUsers
+    CanViewType: OnlyTheseUsers
+    EditorGroups: =>SilverStripe\Security\Group.subadmingroup,=>SilverStripe\Security\Group.editorgroup
+    ViewerGroups: =>SilverStripe\Security\Group.subadmingroup,=>SilverStripe\Security\Group.editorgroup,=>SilverStripe\Security\Group.allsectionsgroup

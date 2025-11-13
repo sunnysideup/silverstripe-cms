@@ -2,14 +2,14 @@
 import i18n from 'i18n';
 import TinyMCEActionRegistrar from 'lib/TinyMCEActionRegistrar';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { ApolloProvider } from 'react-apollo';
+import { createRoot } from 'react-dom/client';
+import { ApolloProvider } from '@apollo/client';
 import { Provider } from 'react-redux';
 import jQuery from 'jquery';
 import ShortcodeSerialiser from 'lib/ShortcodeSerialiser';
 import { createInsertLinkModal } from 'containers/InsertLinkModal/InsertLinkModal';
 import { provideInjector } from 'lib/Injector';
-import { updated } from '../state/anchorSelector/AnchorSelectorActions';
+import { updatedCurrentField } from '../state/anchorSelector/AnchorSelectorActions';
 
 const commandName = 'sslinkanchor';
 
@@ -19,7 +19,7 @@ TinyMCEActionRegistrar
     'sslink',
     {
       text: i18n._t('CMS.LINKLABEL_ANCHOR', 'Anchor on a page'),
-      onclick: (activeEditor) => activeEditor.execCommand(commandName),
+      onAction: (activeEditor) => activeEditor.execCommand(commandName),
       priority: 60,
     },
     editorIdentifier,
@@ -30,12 +30,14 @@ const plugin = {
   init(editor) {
     editor.addCommand(commandName, () => {
       const field = jQuery(`#${editor.id}`).entwine('ss');
+      // Get the anchors in the current field and save them as props for AnchorSelectorField
       const currentPageID = Number(jQuery('#Form_EditForm_ID').val() || 0);
-      const validTargets = editor
-        .$('[id],[name]', editor.getBody())
+      const validTargets = jQuery(editor.getBody())
+        .find('[id],[name]')
         .toArray()
         .map((element) => element.id || element.name);
-      ss.store.dispatch(updated(currentPageID, validTargets, true));
+      ss.store.dispatch(updatedCurrentField(currentPageID, validTargets, editor.id));
+      // Open the anchor link form
       field.openLinkAnchorDialog();
     });
   },
@@ -66,20 +68,24 @@ jQuery.entwine('ss', ($) => {
    * Assumes that $('.insert-link__dialog-wrapper').entwine({}); is defined for shared functions
    */
   $(`#${modalId}`).entwine({
+    ReactRoot: null,
+
     renderModal(isOpen) {
       const store = ss.store;
       const client = ss.apolloClient;
       const handleHide = () => this.close();
       const handleInsert = (...args) => this.handleInsert(...args);
       const attrs = this.getOriginalAttributes();
-      const selection = tinymce.activeEditor.selection;
-      const selectionContent = selection.getContent() || '';
-      const tagName = selection.getNode().tagName;
-      const requireLinkText = tagName !== 'A' && selectionContent.trim() === '';
+      const requireLinkText = this.getRequireLinkText();
       const currentPageID = Number($('#Form_EditForm_ID').val() || 0);
 
       // create/update the react component
-      ReactDOM.render(
+      let root = this.getReactRoot();
+      if (!root) {
+        root = createRoot(this[0]);
+        this.setReactRoot(root);
+      }
+      root.render(
         <ApolloProvider client={client}>
           <Provider store={store}>
             <InsertLinkInternalModal
@@ -95,8 +101,7 @@ jQuery.entwine('ss', ($) => {
               currentPageID={currentPageID}
             />
           </Provider>
-        </ApolloProvider>,
-        this[0]
+        </ApolloProvider>
       );
     },
 

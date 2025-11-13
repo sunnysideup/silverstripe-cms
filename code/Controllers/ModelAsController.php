@@ -17,7 +17,6 @@ use SilverStripe\Dev\Debug;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\View\Parsers\URLSegmentFilter;
-use Translatable;
 
 /**
  * ModelAsController deals with mapping the initial request to the first {@link SiteTree}/{@link ContentController}
@@ -33,16 +32,14 @@ class ModelAsController extends Controller implements NestedController
      * Get the appropriate {@link ContentController} for handling a {@link SiteTree} object, link it to the object and
      * return it.
      *
-     * @param SiteTree $sitetree
      * @param string $action
-     * @return ContentController
      */
-    public static function controller_for(SiteTree $sitetree, $action = null)
+    public static function controller_for(SiteTree $sitetree, $action = null): ContentController
     {
         $controller = $sitetree->getControllerName();
 
-        if ($action && class_exists($controller . '_' . ucfirst($action))) {
-            $controller = $controller . '_' . ucfirst($action);
+        if ($action && class_exists($controller . '_' . ucfirst($action ?? ''))) {
+            $controller = $controller . '_' . ucfirst($action ?? '');
         }
 
         return Injector::inst()->create($controller, $sitetree);
@@ -58,7 +55,6 @@ class ModelAsController extends Controller implements NestedController
     {
         parent::beforeHandleRequest($request);
         // If the database has not yet been created, redirect to the build page.
-        /** @skipUpgrade */
         if (!DB::is_active() || !ClassInfo::hasTable('SiteTree')) {
             $this->getResponse()->redirect(Controller::join_links(
                 Director::absoluteBaseURL(),
@@ -72,10 +68,8 @@ class ModelAsController extends Controller implements NestedController
 
     /**
      * @uses ModelAsController::getNestedController()
-     * @param HTTPRequest $request
-     * @return HTTPResponse
      */
-    public function handleRequest(HTTPRequest $request)
+    public function handleRequest(HTTPRequest $request): HTTPResponse
     {
         $this->beforeHandleRequest($request);
 
@@ -86,23 +80,16 @@ class ModelAsController extends Controller implements NestedController
         }
 
         // If the database has not yet been created, redirect to the build page.
-        /** @skipUpgrade */
         if (!DB::is_active() || !ClassInfo::hasTable('SiteTree')) {
-            $this->getResponse()->redirect(Director::absoluteBaseURL() . 'dev/build?returnURL=' . (isset($_GET['url']) ? urlencode($_GET['url']) : null));
+            $this->getResponse()->redirect(Controller::join_links(Director::absoluteBaseURL(), 'dev/build?returnURL=' . (isset($_GET['url']) ? urlencode($_GET['url']) : null)));
             $this->popCurrent();
 
             return $this->getResponse();
         }
 
         try {
-            $result = $this->getNestedController();
-
-            if ($result instanceof RequestHandler) {
-                $result = $result->handleRequest($this->getRequest());
-            } elseif (!($result instanceof HTTPResponse)) {
-                user_error("ModelAsController::getNestedController() returned bad object type '" .
-                    get_class($result)."'", E_USER_WARNING);
-            }
+            $result = $this->getNestedController()->handleRequest($this->getRequest());
+            $result = $result;
         } catch (HTTPResponse_Exception $responseException) {
             $result = $responseException->getResponse();
         }
@@ -112,50 +99,35 @@ class ModelAsController extends Controller implements NestedController
     }
 
     /**
-     * @return ContentController
      * @throws Exception If URLSegment not passed in as a request parameter.
      */
-    public function getNestedController()
+    public function getNestedController(): ContentController
     {
         $request = $this->getRequest();
+        $urlSegment = $request->param('URLSegment');
 
-        if (!$URLSegment = $request->param('URLSegment')) {
+        if ($urlSegment === false || $urlSegment === null || $urlSegment === '') {
             throw new Exception('ModelAsController->getNestedController(): was not passed a URLSegment value.');
-        }
-
-        // Find page by link, regardless of current locale settings
-        if (class_exists('Translatable')) {
-            Translatable::disable_locale_filter();
         }
 
         // url encode unless it's multibyte (already pre-encoded in the database)
         $filter = URLSegmentFilter::create();
+
         if (!$filter->getAllowMultibyte()) {
-            $URLSegment = rawurlencode($URLSegment);
+            $urlSegment = rawurlencode($urlSegment ?? '');
         }
 
         // Select child page
         $tableName = DataObject::singleton(SiteTree::class)->baseTable();
-        $conditions = [sprintf('"%s"."URLSegment"', $tableName) => $URLSegment];
+        $conditions = [sprintf('"%s"."URLSegment"', $tableName) => $urlSegment];
         if (SiteTree::config()->get('nested_urls')) {
             $conditions[] = [sprintf('"%s"."ParentID"', $tableName) => 0];
         }
         /** @var SiteTree $sitetree */
         $sitetree = DataObject::get_one(SiteTree::class, $conditions);
 
-        // Check translation module
-        // @todo Refactor out module specific code
-        if (class_exists('Translatable')) {
-            Translatable::enable_locale_filter();
-        }
-
         if (!$sitetree) {
             $this->httpError(404, 'The requested page could not be found.');
-        }
-
-        // Enforce current locale setting to the loaded SiteTree object
-        if (class_exists('Translatable') && $sitetree->Locale) {
-            Translatable::set_current_locale($sitetree->Locale);
         }
 
         if (isset($_REQUEST['debug'])) {

@@ -2,8 +2,8 @@
 import i18n from 'i18n';
 import TinyMCEActionRegistrar from 'lib/TinyMCEActionRegistrar';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { ApolloProvider } from 'react-apollo';
+import { createRoot } from 'react-dom/client';
+import { ApolloProvider } from '@apollo/client';
 import { Provider } from 'react-redux';
 import jQuery from 'jquery';
 import ShortcodeSerialiser from 'lib/ShortcodeSerialiser';
@@ -18,7 +18,7 @@ TinyMCEActionRegistrar
     'sslink',
     {
       text: i18n._t('CMS.LINKLABEL_PAGE', 'Page on this site'),
-      onclick: (activeEditor) => activeEditor.execCommand(commandName),
+      onAction: (activeEditor) => activeEditor.execCommand(commandName),
       priority: 90,
     },
     editorIdentifier,
@@ -60,6 +60,8 @@ jQuery.entwine('ss', ($) => {
    * Assumes that $('.insert-link__dialog-wrapper').entwine({}); is defined for shared functions
    */
   $(`#${modalId}`).entwine({
+    ReactRoot: null,
+
     renderModal(isOpen) {
       const store = ss.store;
       const client = ss.apolloClient;
@@ -69,7 +71,12 @@ jQuery.entwine('ss', ($) => {
       const requireLinkText = this.getRequireLinkText();
 
       // create/update the react component
-      ReactDOM.render(
+      let root = this.getReactRoot();
+      if (!root) {
+        root = createRoot(this[0]);
+        this.setReactRoot(root);
+      }
+      root.render(
         <ApolloProvider client={client}>
           <Provider store={store}>
             <InsertLinkInternalModal
@@ -84,23 +91,8 @@ jQuery.entwine('ss', ($) => {
               requireLinkText={requireLinkText}
             />
           </Provider>
-        </ApolloProvider>,
-        this[0]
+        </ApolloProvider>
       );
-    },
-
-    /**
-     * Determine whether to show the link text field
-     *
-     * @return {Boolean}
-     */
-    getRequireLinkText() {
-      const selection = this.getElement().getEditor().getInstance().selection;
-      const selectionContent = selection.getContent() || '';
-      const tagName = selection.getNode().tagName;
-      const requireLinkText = tagName !== 'A' && selectionContent.trim() === '';
-
-      return requireLinkText;
     },
 
     /**

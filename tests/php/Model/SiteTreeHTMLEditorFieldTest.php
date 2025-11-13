@@ -2,7 +2,6 @@
 
 namespace SilverStripe\CMS\Tests\Model;
 
-use Page;
 use SilverStripe\Assets\Dev\TestAssetStore;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Filesystem;
@@ -26,13 +25,13 @@ class SiteTreeHTMLEditorFieldTest extends FunctionalTest
         $files = File::get()->exclude('ClassName', Folder::class);
         foreach ($files as $file) {
             $destPath = TestAssetStore::getLocalPath($file);
-            Filesystem::makeFolder(dirname($destPath));
-            file_put_contents($destPath, str_repeat('x', 1000000));
+            Filesystem::makeFolder(dirname($destPath ?? ''));
+            file_put_contents($destPath ?? '', str_repeat('x', 1000000));
         }
 
         // Ensure all pages are published
-        /** @var Page $page */
-        foreach (Page::get() as $page) {
+        /** @var SiteTree $page */
+        foreach (SiteTree::get() as $page) {
             $page->publishSingle();
         }
     }
@@ -55,7 +54,11 @@ class SiteTreeHTMLEditorFieldTest extends FunctionalTest
         $editor->setValue("<a href=\"[sitetree_link,id=$aboutID]\">Example Link</a>");
         $editor->saveInto($sitetree);
         $sitetree->write();
-        $this->assertEquals([$aboutID => $aboutID], $sitetree->LinkTracking()->getIdList(), 'Basic link tracking works.');
+        $this->assertEquals(
+            [$aboutID => $aboutID],
+            $sitetree->LinkTracking()->getIdList(),
+            'Basic link tracking works.'
+        );
 
         $editor->setValue(
             "<a href=\"[sitetree_link,id=$aboutID]\"></a><a href=\"[sitetree_link,id=$contactID]\"></a>"

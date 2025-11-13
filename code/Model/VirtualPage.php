@@ -4,7 +4,6 @@ namespace SilverStripe\CMS\Model;
 
 use Page;
 use SilverStripe\Core\Convert;
-use SilverStripe\Dev\Deprecation;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyTransformation;
@@ -22,8 +21,8 @@ use SilverStripe\View\HTML;
  *
  * Note: This Only duplicates $db fields and not the $has_one etc..
  *
- * @method SiteTree CopyContentFrom()
  * @property int $CopyContentFromID
+ * @method SiteTree CopyContentFrom()
  */
 class VirtualPage extends Page
 {
@@ -96,9 +95,9 @@ class VirtualPage extends Page
         }
 
         // Diff db with non-virtual fields
-        $fields = array_keys(static::getSchema()->fieldSpecs($record));
+        $fields = array_keys(static::getSchema()->fieldSpecs($record) ?? []);
         $nonVirtualFields = $this->getNonVirtualisedFields();
-        return array_diff($fields, $nonVirtualFields);
+        return array_diff($fields ?? [], $nonVirtualFields);
     }
 
     /**
@@ -247,7 +246,7 @@ class VirtualPage extends Page
                     'a',
                     [
                         'class' => 'cmsEditlink',
-                        'href' => 'admin/pages/edit/show/' . $this->CopyContentFromID,
+                        'href' => $this->CopyContentFrom()->CMSEditLink(),
                     ],
                     _t(self::class . '.EditLink', 'edit')
                 );
@@ -360,30 +359,6 @@ class VirtualPage extends Page
         return $result;
     }
 
-    /**
-     * @deprecated 4.2..5.0
-     */
-    public function updateImageTracking()
-    {
-        Deprecation::notice('5.0', 'This will be removed in 5.0');
-
-        // Doesn't work on unsaved records
-        if (!$this->isInDB()) {
-            return;
-        }
-
-        // Remove CopyContentFrom() from the cache
-        unset($this->components['CopyContentFrom']);
-
-        // Update ImageTracking
-        $copyContentFrom = $this->CopyContentFrom();
-        if (!$copyContentFrom || !$copyContentFrom->isInDB()) {
-            return;
-        }
-
-        $this->FileTracking()->setByIDList($copyContentFrom->FileTracking()->column('ID'));
-    }
-
     public function CMSTreeClasses()
     {
         $parentClass = sprintf(
@@ -448,7 +423,7 @@ class VirtualPage extends Page
     {
         // Don't defer if field is non-virtualised
         $ignore = $this->getNonVirtualisedFields();
-        if (in_array($field, $ignore)) {
+        if (in_array($field, $ignore ?? [])) {
             return false;
         }
 
@@ -474,7 +449,7 @@ class VirtualPage extends Page
         if (parent::hasMethod($method)) {
             return parent::__call($method, $args);
         } else {
-            return call_user_func_array([$this->CopyContentFrom(), $method], $args);
+            return call_user_func_array([$this->CopyContentFrom(), $method], $args ?? []);
         }
     }
 

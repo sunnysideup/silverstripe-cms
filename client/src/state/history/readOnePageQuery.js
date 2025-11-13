@@ -1,4 +1,4 @@
-import { graphql } from 'react-apollo';
+import { graphql } from '@apollo/client/react/hoc';
 import gql from 'graphql-tag';
 
 // GraphQL query for retrieving the version history of a specific page. The
@@ -88,11 +88,11 @@ const config = {
         versions: {
           ...versions,
           goToPage(page) {
-           refetch({
+            refetch({
               offset: ((page || 1) - 1) * limit,
               limit,
               page_id: recordId,
-           });
+            });
           }
         },
       },

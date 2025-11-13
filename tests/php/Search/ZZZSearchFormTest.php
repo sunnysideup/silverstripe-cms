@@ -2,7 +2,6 @@
 
 namespace SilverStripe\CMS\Tests\Search;
 
-use Page;
 use SilverStripe\Assets\File;
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\CMS\Controllers\ModelAsController;
@@ -22,15 +21,11 @@ use SilverStripe\Versioned\Versioned;
 use TractorCow\Fluent\Extension\FluentSiteTreeExtension;
 
 /**
- * @todo Fix unpublished pages check in testPublishedPagesMatchedByTitle()
- * @todo All tests run on unpublished pages at the moment, due to the searchform not distinguishing between them
- *
  * Because this manipulates the test database in severe ways, I've renamed the test to force it to run last...
  */
 class ZZZSearchFormTest extends FunctionalTest
 {
-
-    protected static $fixture_file = 'SearchFormTest.yml';
+    protected static $fixture_file = 'ZZZSearchFormTest.yml';
 
     protected static $illegal_extensions = [
         SiteTree::class => [
@@ -97,9 +92,6 @@ class ZZZSearchFormTest extends FunctionalTest
         return $supports;
     }
 
-    /**
-     * @skipUpgrade
-     */
     public function testSearchFormTemplateCanBeChanged()
     {
         if (!$this->checkFulltextSupport()) {
@@ -116,9 +108,6 @@ class ZZZSearchFormTest extends FunctionalTest
         );
     }
 
-    /**
-     * @skipUpgrade
-     */
     public function testPublishedPagesMatchedByTitle()
     {
         if (!$this->checkFulltextSupport()) {
@@ -149,9 +138,6 @@ class ZZZSearchFormTest extends FunctionalTest
         );
     }
 
-    /**
-     * @skipUpgrade
-     */
     public function testDoubleQuotesPublishedPagesMatchedByTitle()
     {
         if (!$this->checkFulltextSupport()) {
@@ -184,9 +170,6 @@ class ZZZSearchFormTest extends FunctionalTest
         );
     }
 
-    /**
-     * @skipUpgrade
-     */
     public function testUnpublishedPagesNotIncluded()
     {
         if (!$this->checkFulltextSupport()) {

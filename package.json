@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/silverstripe/silverstripe-cms#readme",
   "dependencies": {
-    "@apollo/client": "^3.7.1",
+    "@apollo/client": "^3.13.8",
     "@popperjs/core": "^2.11.6",
     "bootstrap": "^4.6.2",
     "classnames": "^2.3.2",
